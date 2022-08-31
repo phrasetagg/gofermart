@@ -1,0 +1,131 @@
+package order
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	orderErrors "github.com/phrasetagg/gofermart/internal/app/errors/services/order"
+	"github.com/phrasetagg/gofermart/internal/app/helpers"
+	"github.com/phrasetagg/gofermart/internal/app/services"
+	"io"
+	"net/http"
+)
+
+func Get(orderService *services.Order) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+				return
+			}
+		}(r.Body)
+
+		w.Header().Set("content-type", "application/json")
+
+		user := helpers.GetUserFromCtx(r.Context())
+		orders, err := orderService.GetUserOrders(user.ID)
+
+		// 500
+		if err != nil {
+			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err = w.Write([]byte(`{"error":"something went wrong."}`))
+			return
+		}
+
+		// 204
+		if len(orders) == 0 {
+			w.WriteHeader(http.StatusNoContent)
+			if err != nil {
+				return
+			}
+		}
+
+		// 200
+		response, err := json.Marshal(orders)
+		w.WriteHeader(http.StatusAccepted)
+		_, err = w.Write(response)
+		if err != nil {
+			return
+		}
+	}
+}
+
+func Upload(orderService *services.Order) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+				return
+			}
+		}(r.Body)
+
+		w.Header().Set("content-type", "application/json")
+
+		b, err := io.ReadAll(r.Body)
+
+		// 500
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err = w.Write([]byte(`{"error":"something went wrong."}`))
+			return
+		}
+
+		orderNumber := string(b)
+
+		// 400
+		if orderNumber == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			_, err = w.Write([]byte(`{"error":"invalid request body."}`))
+			return
+		}
+
+		// 422
+		if services.IsNotValidOrderNumber(orderNumber) {
+			w.WriteHeader(http.StatusBadRequest)
+			_, err = w.Write([]byte(`{"error":"invalid order number."}`))
+			return
+		}
+
+		user := helpers.GetUserFromCtx(r.Context())
+		err = orderService.Upload(user.ID, orderNumber)
+
+		// 200
+		var oae *orderErrors.AlreadyExistsError
+		if errors.As(err, &oae) {
+			w.WriteHeader(http.StatusOK)
+			_, err = w.Write([]byte(fmt.Sprintf(`{"message":"%s"}`, err.Error())))
+			if err != nil {
+				return
+			}
+			return
+		}
+
+		// 409
+		var oaebau *orderErrors.AlreadyExistsByAnotherUserError
+		if errors.As(err, &oaebau) {
+			w.WriteHeader(http.StatusConflict)
+			_, err = w.Write([]byte(fmt.Sprintf(`{"error":"%s"}`, err.Error())))
+			if err != nil {
+				return
+			}
+			return
+		}
+
+		// 500
+		var onfe *orderErrors.NotFoundError
+		if err != nil && !errors.As(err, &onfe) {
+			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err = w.Write([]byte(`{"error":"something went wrong."}`))
+			return
+		}
+
+		// 202
+		w.WriteHeader(http.StatusAccepted)
+		_, err = w.Write([]byte(`{"message":"new order number accepted for processing."}`))
+		if err != nil {
+			return
+		}
+	}
+}
