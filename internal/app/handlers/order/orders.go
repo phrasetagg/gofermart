@@ -43,7 +43,7 @@ func Get(orderService *services.Order) http.HandlerFunc {
 
 		// 200
 		response, err := json.Marshal(orders)
-		w.WriteHeader(http.StatusAccepted)
+		w.WriteHeader(http.StatusOK)
 		_, err = w.Write(response)
 		if err != nil {
 			return
