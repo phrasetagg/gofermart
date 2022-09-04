@@ -27,7 +27,7 @@ func GetBalance(userService *services.User) http.HandlerFunc {
 
 		// 200
 		response, err := json.Marshal(balance)
-		w.WriteHeader(http.StatusAccepted)
+		w.WriteHeader(http.StatusOK)
 		_, err = w.Write(response)
 		if err != nil {
 			return
@@ -50,6 +50,7 @@ func GetWithdrawals(userService *services.User) http.HandlerFunc {
 			return
 		}
 
+		// 204
 		if len(withdrawals) == 0 {
 			w.WriteHeader(http.StatusNoContent)
 			return
