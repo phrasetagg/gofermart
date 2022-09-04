@@ -56,7 +56,7 @@ func (a *Accrual) StartOrderStatusesUpdating() {
 					return
 				}
 
-				err = a.orderRepository.UpdateOrderStatus(orderInfo.Order, orderInfo.Status)
+				err = a.orderRepository.ProcessOrderAccrual(orderInfo)
 				if err != nil {
 					fmt.Println("Failed to update order status" + err.Error())
 					wg.Done()
