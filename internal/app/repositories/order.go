@@ -10,8 +10,8 @@ import (
 )
 
 const statusNew = "NEW"
+const statusProcessing = "PROCESSING"
 
-//const statusProcessing = "PROCESSING"
 //const statusInvalid = "INVALID"
 //const statusProcessed = "PROCESSED"
 
@@ -93,4 +93,52 @@ func (o *Order) GetOrdersByUserID(userID int64) ([]models.Order, error) {
 	}
 
 	return orders, nil
+}
+
+func (o *Order) GetUnprocessedOrders() ([]models.Order, error) {
+	orders := make([]models.Order, 0)
+
+	conn, err := o.DB.GetConn(context.Background())
+
+	if err != nil {
+		return orders, err
+	}
+
+	rows, err := conn.Query(
+		context.Background(),
+		"SELECT number "+
+			"FROM orders "+
+			"WHERE status=$1 OR status=$2 ORDER BY uploaded_at",
+		statusNew, statusProcessing)
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var order models.Order
+		err = rows.Scan(&order.Number)
+		if err != nil {
+			return nil, err
+		}
+
+		orders = append(orders, order)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return orders, nil
+}
+
+func (o *Order) UpdateOrderStatus(orderNumber string, orderStatus string) error {
+	conn, err := o.DB.GetConn(context.Background())
+
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.Exec(context.Background(), "UPDATE orders SET status=$1 WHERE number=$2", orderStatus, orderNumber)
+
+	return err
 }

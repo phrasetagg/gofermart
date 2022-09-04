@@ -32,6 +32,9 @@ func StartServer() {
 	userService := services.NewUserService(userRepository, balanceRepository)
 	authService := services.NewAuthService()
 	orderService := services.NewOrderService(orderRepository)
+	accrualService := services.NewAccrualService(cfg.AccrualAddr, orderRepository)
+
+	accrualService.StartOrderStatusesUpdating()
 
 	authMiddleware := middlewares.NewAuthMiddleware(authService, userRepository)
 
