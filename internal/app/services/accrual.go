@@ -28,6 +28,11 @@ func NewAccrualService(accrualAddr string, orderRepository *repositories.Order) 
 func (a *Accrual) StartOrderStatusesUpdating() {
 	var wg sync.WaitGroup
 
+	if len(a.accrualAddr) == 0 {
+		fmt.Println(errors.New("undefined accrual system address"))
+		return
+	}
+
 	for {
 		orders, err := a.orderRepository.GetUnprocessedOrders()
 		if err != nil {
@@ -47,11 +52,15 @@ func (a *Accrual) StartOrderStatusesUpdating() {
 				orderInfo, err := a.GetOrderInfo(order.Number)
 				if err != nil {
 					fmt.Println("Failed to request order status from accrual system" + err.Error())
+					wg.Done()
+					return
 				}
 
 				err = a.orderRepository.UpdateOrderStatus(orderInfo.Order, orderInfo.Status)
 				if err != nil {
 					fmt.Println("Failed to update order status" + err.Error())
+					wg.Done()
+					return
 				}
 				wg.Done()
 			}(order)
