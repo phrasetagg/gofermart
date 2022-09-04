@@ -57,7 +57,7 @@ func GetWithdrawals(userService *services.User) http.HandlerFunc {
 
 		// 200
 		response, err := json.Marshal(withdrawals)
-		w.WriteHeader(http.StatusAccepted)
+		w.WriteHeader(http.StatusOK)
 		_, err = w.Write(response)
 		if err != nil {
 			return
