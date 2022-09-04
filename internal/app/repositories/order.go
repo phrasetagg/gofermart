@@ -70,8 +70,8 @@ func (o *Order) GetOrdersByUserID(userID int64) ([]models.Order, error) {
 
 	rows, err := conn.Query(
 		context.Background(),
-		"SELECT o.id, o.user_id, o.number, o.status, o.uploaded_at, a.value "+
-			"FROM orders as o LEFT JOIN accruals a on o.user_id = a.user_id "+
+		"SELECT o.id, o.user_id, o.number, o.status, o.uploaded_at, coalesce(a.value,0) "+
+			"FROM orders as o LEFT JOIN accruals a on o.number = a.order_number "+
 			"WHERE o.user_id=$1",
 		userID)
 
