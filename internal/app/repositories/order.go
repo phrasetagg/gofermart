@@ -7,7 +7,6 @@ import (
 	"github.com/phrasetagg/gofermart/internal/app/db"
 	orderErrors "github.com/phrasetagg/gofermart/internal/app/errors/services/order"
 	"github.com/phrasetagg/gofermart/internal/app/models"
-	"github.com/phrasetagg/gofermart/internal/app/services"
 )
 
 const statusNew = "NEW"
@@ -132,26 +131,26 @@ func (o *Order) GetUnprocessedOrders() ([]models.Order, error) {
 	return orders, nil
 }
 
-func (o *Order) ProcessOrderAccrual(orderInfo services.OrderInfo) error {
+func (o *Order) ProcessOrderAccrual(orderNumber string, status string, accrual float64) error {
 	conn, err := o.DB.GetConn(context.Background())
 
 	if err != nil {
 		return err
 	}
 
-	_, err = conn.Exec(context.Background(), "UPDATE orders SET status=$1 WHERE number=$2", orderInfo.Status, orderInfo.Accrual)
+	_, err = conn.Exec(context.Background(), "UPDATE orders SET status=$1 WHERE number=$2", status, accrual)
 
 	if err != nil {
 		return err
 	}
 
-	order, err := o.GetOrderByNumber(orderInfo.Order)
+	order, err := o.GetOrderByNumber(orderNumber)
 	if err != nil {
 		return err
 	}
 
 	_, err = conn.Exec(context.Background(), "INSERT INTO accruals (user_id, order_number, value, created_at) VALUES ($1,$2,$3,NOW())",
-		order.UserID, orderInfo.Order, orderInfo.Accrual)
+		order.UserID, orderNumber, accrual)
 
 	return err
 }
