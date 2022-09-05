@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v4"
 	"github.com/phrasetagg/gofermart/internal/app/db"
 	orderErrors "github.com/phrasetagg/gofermart/internal/app/errors/services/order"
@@ -137,6 +138,9 @@ func (o *Order) ProcessOrderAccrual(orderNumber string, status string, accrual f
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("TRY TO UPDATE. Onumber: " + orderNumber + " STATUS: " + status + "accrual: ")
+	fmt.Println(accrual)
 
 	_, err = conn.Exec(context.Background(), "UPDATE orders SET status=$1 WHERE number=$2", status, orderNumber)
 
