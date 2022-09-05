@@ -142,13 +142,22 @@ func (o *Order) ProcessOrderAccrual(orderNumber string, status string, accrual f
 	fmt.Println("TRY TO UPDATE. Onumber: " + orderNumber + " STATUS: " + status + "accrual: ")
 	fmt.Println(accrual)
 
-	_, err = conn.Exec(context.Background(), "UPDATE orders SET status=$1 WHERE number=$2", status, orderNumber)
-
+	order, err := o.GetOrderByNumber(orderNumber)
 	if err != nil {
 		return err
 	}
 
-	order, err := o.GetOrderByNumber(orderNumber)
+	//_, err = conn.Exec(context.Background(), "UPDATE orders SET status=$1 WHERE number=$2", status, orderNumber)
+
+	_, err = conn.Exec(context.Background(), "INSERT INTO orders (user_id, number, status, uploaded_at) "+
+		"VALUES ($1,$2,$3,NOW()) ON CONFLICT (number) DO UPDATE SET status=$1 WHERE number=$2",
+		order.UserID,
+		orderNumber,
+		status,
+		status,
+		orderNumber,
+	)
+
 	if err != nil {
 		return err
 	}
