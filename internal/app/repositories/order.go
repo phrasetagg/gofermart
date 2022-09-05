@@ -31,6 +31,10 @@ func (o *Order) Create(userID int64, orderNumber string) error {
 		return err
 	}
 
+	fmt.Println("INSERT")
+	fmt.Println(userID)
+	fmt.Println(orderNumber)
+
 	_, err = conn.Exec(context.Background(), "INSERT INTO orders (user_id, number, status, uploaded_at) VALUES ($1,$2,$3,NOW())", userID, orderNumber, statusNew)
 
 	return err
@@ -147,16 +151,16 @@ func (o *Order) ProcessOrderAccrual(orderNumber string, status string, accrual f
 		return err
 	}
 
-	//_, err = conn.Exec(context.Background(), "UPDATE orders SET status=$1 WHERE number=$2", status, orderNumber)
+	_, err = conn.Exec(context.Background(), "UPDATE orders SET status=$1 WHERE number=$2", status, orderNumber)
 
-	_, err = conn.Exec(context.Background(), "INSERT INTO orders (user_id, number, status, uploaded_at) "+
-		"VALUES ($1,$2,$3,NOW()) ON CONFLICT (number) DO UPDATE SET status=$1 WHERE number=$2",
-		order.UserID,
-		orderNumber,
-		status,
-		status,
-		orderNumber,
-	)
+	//_, err = conn.Exec(context.Background(), "INSERT INTO orders (user_id, number, status, uploaded_at) "+
+	//	"VALUES ($1,$2,$3,NOW()) ON CONFLICT (number) DO UPDATE SET status=$1 WHERE number=$2",
+	//	order.UserID,
+	//	orderNumber,
+	//	status,
+	//	status,
+	//	orderNumber,
+	//)
 
 	if err != nil {
 		return err
