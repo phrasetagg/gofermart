@@ -138,7 +138,7 @@ func (o *Order) ProcessOrderAccrual(orderNumber string, status string, accrual f
 		return err
 	}
 
-	_, err = conn.Exec(context.Background(), "UPDATE orders SET status=$1 WHERE number=$2", status, accrual)
+	_, err = conn.Exec(context.Background(), "UPDATE orders SET status=$1 WHERE number=$2", status, orderNumber)
 
 	if err != nil {
 		return err
