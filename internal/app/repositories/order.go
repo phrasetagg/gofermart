@@ -52,9 +52,9 @@ func (o *Order) GetOrderByNumber(number string) (models.Order, error) {
 	err = conn.
 		QueryRow(
 			context.Background(),
-			"SELECT o.id, o.user_id, o.number, o.status, o.uploaded_at, a.value "+
+			"SELECT o.id, o.user_id, o.number, o.status, o.uploaded_at, coalesce(a.value,0) "+
 				"FROM orders as o LEFT JOIN accruals a on o.number = a.order_number "+
-				"WHERE o.number='$1'", number).
+				"WHERE o.number = $1", number).
 		Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.UploadedAt, &order.Accrual)
 
 	if errors.As(err, &pgx.ErrNoRows) {
@@ -152,15 +152,6 @@ func (o *Order) ProcessOrderAccrual(orderNumber string, status string, accrual f
 	}
 
 	_, err = conn.Exec(context.Background(), "UPDATE orders SET status=$1 WHERE number=$2", status, orderNumber)
-
-	//_, err = conn.Exec(context.Background(), "INSERT INTO orders (user_id, number, status, uploaded_at) "+
-	//	"VALUES ($1,$2,$3,NOW()) ON CONFLICT (number) DO UPDATE SET status=$1 WHERE number=$2",
-	//	order.UserID,
-	//	orderNumber,
-	//	status,
-	//	status,
-	//	orderNumber,
-	//)
 
 	if err != nil {
 		return err
