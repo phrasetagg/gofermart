@@ -60,7 +60,7 @@ func (o *Order) Upload(userID int64, orderNumber string) error {
 
 // IsValidOrderNumber возвращает true, если номер заказ корректный, иначе false.
 func IsValidOrderNumber(orderNumber string) bool {
-	re := regexp.MustCompile("([0-9])+")
+	re := regexp.MustCompile("^([0-9])+$")
 
 	return re.MatchString(orderNumber)
 }

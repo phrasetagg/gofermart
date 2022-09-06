@@ -142,7 +142,7 @@ func RegisterWithDraw(userService *services.User, orderService *services.Order) 
 		}
 
 		// 200
-		w.WriteHeader(http.StatusAccepted)
+		w.WriteHeader(http.StatusOK)
 		_, err = w.Write([]byte(`{"message":"you have successfully registered withdraw."}`))
 		if err != nil {
 			return
