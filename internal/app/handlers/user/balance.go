@@ -89,6 +89,9 @@ func RegisterWithDraw(userService *services.User, orderService *services.Order) 
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err = w.Write([]byte(`{"error":"invalid request body."}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 
@@ -96,6 +99,9 @@ func RegisterWithDraw(userService *services.User, orderService *services.Order) 
 		if services.IsNotValidOrderNumber(request.OrderNumber) {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err = w.Write([]byte(`{"error":"invalid order number."}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 
@@ -107,6 +113,9 @@ func RegisterWithDraw(userService *services.User, orderService *services.Order) 
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(`{"error":"something went wrong."}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 
@@ -114,6 +123,9 @@ func RegisterWithDraw(userService *services.User, orderService *services.Order) 
 		if balance.Current < request.Sum {
 			w.WriteHeader(http.StatusPaymentRequired)
 			_, err = w.Write([]byte(`{"error":"not enough funds on the balance."}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 
@@ -138,6 +150,9 @@ func RegisterWithDraw(userService *services.User, orderService *services.Order) 
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(`{"error":"something went wrong."}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 

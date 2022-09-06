@@ -33,6 +33,9 @@ func Register(userService *services.User, authService *services.Auth) http.Handl
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err = w.Write([]byte(`{"error":"invalid request body"}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 
@@ -43,6 +46,9 @@ func Register(userService *services.User, authService *services.Auth) http.Handl
 		if errors.As(err, &uae) {
 			w.WriteHeader(http.StatusConflict)
 			_, err = w.Write([]byte(fmt.Sprintf(`{"error":"%s"}`, err.Error())))
+			if err != nil {
+				return
+			}
 			return
 		}
 
@@ -50,6 +56,9 @@ func Register(userService *services.User, authService *services.Auth) http.Handl
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(`{"error":"something went wrong"}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 

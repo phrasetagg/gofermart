@@ -30,6 +30,9 @@ func Get(orderService *services.Order) http.HandlerFunc {
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(`{"error":"something went wrong."}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 
@@ -68,6 +71,9 @@ func Upload(orderService *services.Order) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(`{"error":"something went wrong."}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 
@@ -79,6 +85,9 @@ func Upload(orderService *services.Order) http.HandlerFunc {
 		if orderNumber == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err = w.Write([]byte(`{"error":"invalid request body."}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 
@@ -86,6 +95,9 @@ func Upload(orderService *services.Order) http.HandlerFunc {
 		if services.IsNotValidOrderNumber(orderNumber) {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			_, err = w.Write([]byte(`{"error":"invalid order number."}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 
@@ -120,6 +132,9 @@ func Upload(orderService *services.Order) http.HandlerFunc {
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(`{"error":"something went wrong."}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 
