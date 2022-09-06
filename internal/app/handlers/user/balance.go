@@ -20,6 +20,8 @@ func GetBalance(userService *services.User) http.HandlerFunc {
 
 		// 500
 		if err != nil {
+			fmt.Println(err.Error())
+
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(`{"error":"something went wrong."}`))
 			if err != nil {
