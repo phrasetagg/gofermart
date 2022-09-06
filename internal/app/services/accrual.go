@@ -78,13 +78,16 @@ func (a *Accrual) GetOrderInfo(orderNumber string) (OrderInfo, error) {
 		return orderInfo, err
 	}
 
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(response.Body)
+
 	if response.StatusCode != http.StatusOK {
 		return orderInfo, fmt.Errorf("%d %s", response.StatusCode, response.Status)
 	}
-
-	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
-	}(response.Body)
 
 	b, _ := io.ReadAll(response.Body)
 	err = json.Unmarshal(b, &orderInfo)
