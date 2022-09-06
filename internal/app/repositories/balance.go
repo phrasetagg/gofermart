@@ -97,7 +97,7 @@ func (b *Balance) AddWithdraw(userID int64, orderNumber string, withdrawValue fl
 
 	_, err = conn.Exec(context.Background(),
 		"INSERT INTO accruals_withdrawn "+
-			"(user_id, order_number, coalesce(value,0), created_at) "+
+			"(user_id, order_number, value, created_at) "+
 			"VALUES ($1,$2,$3,NOW())",
 		userID, orderNumber, withdrawValue)
 
