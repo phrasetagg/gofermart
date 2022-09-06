@@ -84,7 +84,7 @@ func Upload(orderService *services.Order) http.HandlerFunc {
 
 		// 422
 		if services.IsNotValidOrderNumber(orderNumber) {
-			w.WriteHeader(http.StatusBadRequest)
+			w.WriteHeader(http.StatusUnprocessableEntity)
 			_, err = w.Write([]byte(`{"error":"invalid order number."}`))
 			return
 		}
