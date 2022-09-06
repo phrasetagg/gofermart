@@ -35,11 +35,7 @@ func (a *Auth) ValidateAuthToken(authToken string) bool {
 	h.Write(data[:len(data)-32])
 	sign = h.Sum(nil)
 
-	if hmac.Equal(sign, data[len(data)-32:]) {
-		return true
-	}
-
-	return false
+	return hmac.Equal(sign, data[len(data)-32:])
 }
 
 func (a *Auth) GetUserLoginFromAuthToken(authToken string) string {

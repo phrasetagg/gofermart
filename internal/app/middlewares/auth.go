@@ -19,7 +19,9 @@ func NewAuthMiddleware(authService *services.Auth, userRepository *repositories.
 	}
 }
 
-const UserCtxPropName = "user"
+type CtxPropName string
+
+const UserCtxPropName CtxPropName = "user"
 
 func (a *Auth) CheckAuth() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

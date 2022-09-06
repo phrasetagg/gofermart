@@ -39,13 +39,15 @@ func Get(orderService *services.Order) http.HandlerFunc {
 		// 204
 		if len(orders) == 0 {
 			w.WriteHeader(http.StatusNoContent)
-			if err != nil {
-				return
-			}
+			return
 		}
 
 		// 200
 		response, err := json.Marshal(orders)
+		if err != nil {
+			return
+		}
+
 		w.WriteHeader(http.StatusOK)
 		_, err = w.Write(response)
 		if err != nil {

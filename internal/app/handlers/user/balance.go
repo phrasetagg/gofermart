@@ -56,6 +56,9 @@ func GetWithdrawals(userService *services.User) http.HandlerFunc {
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(`{"error":"something went wrong."}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 
