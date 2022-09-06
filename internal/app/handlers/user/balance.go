@@ -22,11 +22,17 @@ func GetBalance(userService *services.User) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(`{"error":"something went wrong."}`))
+			if err != nil {
+				return
+			}
 			return
 		}
 
 		// 200
 		response, err := json.Marshal(balance)
+		if err != nil {
+			return
+		}
 		w.WriteHeader(http.StatusOK)
 		_, err = w.Write(response)
 		if err != nil {
@@ -58,6 +64,9 @@ func GetWithdrawals(userService *services.User) http.HandlerFunc {
 
 		// 200
 		response, err := json.Marshal(withdrawals)
+		if err != nil {
+			return
+		}
 		w.WriteHeader(http.StatusOK)
 		_, err = w.Write(response)
 		if err != nil {
