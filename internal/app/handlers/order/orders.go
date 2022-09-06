@@ -73,6 +73,8 @@ func Upload(orderService *services.Order) http.HandlerFunc {
 
 		orderNumber := string(b)
 
+		fmt.Println("ORDER NUMBER: " + orderNumber)
+
 		// 400
 		if orderNumber == "" {
 			w.WriteHeader(http.StatusBadRequest)
