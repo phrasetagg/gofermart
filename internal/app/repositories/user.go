@@ -31,7 +31,7 @@ func (u *User) GetUserByLogin(login string) (*user.User, error) {
 		QueryRow(context.Background(), "SELECT id,login FROM users WHERE login=$1", login).
 		Scan(&userModel.ID, &userModel.Login)
 
-	if err != nil && errors.As(err, &pgx.ErrNoRows) {
+	if err != nil && errors.Is(err, pgx.ErrNoRows) {
 		return &userModel, &userErrors.NotFoundError{}
 	}
 
@@ -51,7 +51,7 @@ func (u *User) GetUserByLoginAndPassword(login string, password string) (*user.U
 		QueryRow(context.Background(), "SELECT login FROM users WHERE login=$1 AND password=$2", login, password).
 		Scan(&userModel.Login)
 
-	if err != nil && errors.As(err, &pgx.ErrNoRows) {
+	if err != nil && errors.Is(err, pgx.ErrNoRows) {
 		return nil, &userErrors.NotFoundError{}
 	}
 

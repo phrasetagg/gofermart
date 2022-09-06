@@ -28,10 +28,18 @@ func (b *Balance) GetUserBalance(userID int64) (*userModels.Balance, error) {
 		QueryRow(context.Background(), "SELECT SUM(value) accruals FROM accruals WHERE user_id=$1", userID).
 		Scan(&accruals)
 
+	if err != nil {
+		return nil, err
+	}
+
 	var accrualsWithdrawn float64
 	err = conn.
 		QueryRow(context.Background(), "SELECT SUM(value) accruals_withdrawn FROM accruals_withdrawn WHERE user_id=$1", userID).
 		Scan(&accrualsWithdrawn)
+
+	if err != nil {
+		return nil, err
+	}
 
 	accrualsValue := decimal.NewFromFloat(accruals)
 	accrualsWithdrawnValue := decimal.NewFromFloat(accrualsWithdrawn)
@@ -56,6 +64,10 @@ func (b *Balance) GetUserWithdrawals(userID int64) ([]userModels.Withdrawal, err
 			"FROM accruals_withdrawn "+
 			"WHERE user_id = $1",
 		userID)
+
+	if err != nil {
+		return withdrawals, err
+	}
 
 	defer rows.Close()
 

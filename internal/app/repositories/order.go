@@ -57,7 +57,7 @@ func (o *Order) GetOrderByNumber(number string) (models.Order, error) {
 				"WHERE o.number = $1", number).
 		Scan(&order.ID, &order.UserID, &order.Number, &order.Status, &order.UploadedAt, &order.Accrual)
 
-	if errors.As(err, &pgx.ErrNoRows) {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return order, &orderErrors.NotFoundError{}
 	}
 
@@ -79,6 +79,10 @@ func (o *Order) GetOrdersByUserID(userID int64) ([]models.Order, error) {
 			"FROM orders as o LEFT JOIN accruals a on o.number = a.order_number "+
 			"WHERE o.user_id=$1",
 		userID)
+
+	if err != nil {
+		return orders, err
+	}
 
 	defer rows.Close()
 
@@ -115,6 +119,10 @@ func (o *Order) GetUnprocessedOrders() ([]models.Order, error) {
 			"FROM orders "+
 			"WHERE status=$1 OR status=$2 ORDER BY uploaded_at",
 		statusNew, statusProcessing)
+
+	if err != nil {
+		return orders, err
+	}
 
 	defer rows.Close()
 
