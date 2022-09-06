@@ -25,7 +25,7 @@ func (b *Balance) GetUserBalance(userID int64) (*userModels.Balance, error) {
 
 	var accruals float64
 	err = conn.
-		QueryRow(context.Background(), "SELECT SUM(value) accruals FROM accruals WHERE user_id=$1", userID).
+		QueryRow(context.Background(), "SELECT coalesce(SUM(value),0) accruals FROM accruals WHERE user_id=$1", userID).
 		Scan(&accruals)
 
 	if err != nil {
@@ -34,7 +34,7 @@ func (b *Balance) GetUserBalance(userID int64) (*userModels.Balance, error) {
 
 	var accrualsWithdrawn float64
 	err = conn.
-		QueryRow(context.Background(), "SELECT SUM(value) accruals_withdrawn FROM accruals_withdrawn WHERE user_id=$1", userID).
+		QueryRow(context.Background(), "SELECT coalesce(SUM(value),0) accruals_withdrawn FROM accruals_withdrawn WHERE user_id=$1", userID).
 		Scan(&accrualsWithdrawn)
 
 	if err != nil {
@@ -60,7 +60,7 @@ func (b *Balance) GetUserWithdrawals(userID int64) ([]userModels.Withdrawal, err
 
 	rows, err := conn.Query(
 		context.Background(),
-		"SELECT order_number, value, created_at "+
+		"SELECT order_number, coalesce(value,0), created_at "+
 			"FROM accruals_withdrawn "+
 			"WHERE user_id = $1",
 		userID)
@@ -97,7 +97,7 @@ func (b *Balance) AddWithdraw(userID int64, orderNumber string, withdrawValue fl
 
 	_, err = conn.Exec(context.Background(),
 		"INSERT INTO accruals_withdrawn "+
-			"(user_id, order_number, value, created_at) "+
+			"(user_id, order_number, coalesce(value,0), created_at) "+
 			"VALUES ($1,$2,$3,NOW())",
 		userID, orderNumber, withdrawValue)
 
